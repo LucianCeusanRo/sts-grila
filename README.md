@@ -6,6 +6,7 @@
 
 **Telecom & networking exam trainer: ~3,100 questions, lessons, games and a 3D practical lab — installable and offline.**
 
+  <a href="https://sts-grila-ceusan3.netlify.app"><img alt="Live demo" src="https://img.shields.io/badge/Live%20demo-open-0ea5e9"></a>
   <a href="https://github.com/LucianCeusanRo/sts-grila/actions/workflows/ci.yml"><img alt="CI" src="https://github.com/LucianCeusanRo/sts-grila/actions/workflows/ci.yml/badge.svg"></a>
   <a href="LICENSE"><img alt="License: MIT" src="https://img.shields.io/badge/license-MIT-green.svg"></a>
   <img alt="JavaScript" src="https://img.shields.io/badge/language-JavaScript-blue">
@@ -17,6 +18,8 @@
 </div>
 
 <p align="center"><img src="docs/screenshots/sts-lab.webp" alt="STS Grilă screenshot" width="900"></p>
+
+<p align="center"><strong><a href="https://sts-grila-ceusan3.netlify.app">▶ Live demo</a></strong> — open it in the browser and try it yourself.</p>
 
 ## 📑 Table of contents
 
