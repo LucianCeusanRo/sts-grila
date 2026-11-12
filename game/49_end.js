@@ -1,0 +1,5 @@
+  /* ---------- interfața publică ---------- */
+  var API = { mount: mount, unmount: unmount, active: function () { return !!root; }, storyResume: function () { storyResume("prac"); }, ticketNo: function () { return STORY && STORY.V ? { n: STORY.V.n } : null; } };
+  if (typeof window !== "undefined" && /[?&]jgtest=1/.test(location.search)) window.__jg = { negTest: negTest, autoSolve: autoSolve, genVar: genVar, addFaults: addFaults, draw3: draw3, G: function () { return G; }, setDiff: setDiff, diff: function () { return DIFF; }, start: function (id, V) { startMission(id, null, V); }, startStory: startStory, replay: startReplay, solve: function (k) { SOLVE[k](G); settle(G); checkObj(); }, timeUp: timeUp, check: checkObj, failed: function () { return failedObjs(G).map(function (o) { return o.k; }); }, mistake: mistake, open: openStation, menu: menu, V3: function () { return V3; }, gRun: function (d, c) { return gRun(G.S[d], c); }, win: function (c) { return B.winRun(G.S.pc, c); }, pcReach: function (ip) { return pcReach(G, ip); }, MS: function () { return MS(G); }, ticket: function () { return ticketHtml(G); } };
+  return API;
+})();

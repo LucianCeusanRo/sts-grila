@@ -1,0 +1,27 @@
+[build]
+  publish = "public"
+  command = ""
+
+[functions]
+  directory = "netlify/functions"
+  node_bundler = "esbuild"
+
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Content-Type-Options = "nosniff"
+    Referrer-Policy = "strict-origin-when-cross-origin"
+    X-Robots-Tag = "noindex, nofollow"
+    Cache-Control = "public, max-age=0, must-revalidate"
+
+[[redirects]]
+  from = "/joc"
+  to = "/?joc=1#joc"
+  status = 302
+  force = true
+
+[[redirects]]
+  from = "/joc/"
+  to = "/?joc=1#joc"
+  status = 302
+  force = true

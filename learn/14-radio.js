@@ -1,0 +1,106 @@
+/* ===== Antene și radio – lecții ORIGINALE pe temele din Colonati („Radiocomunicații digitale”) și Graham et al. („Mobile Radio Network Design in the VHF and UHF Bands”) ===== */
+(function () {
+  function W(vb, inner, title) { return '<figure class="dia"><svg viewBox="' + vb + '" role="img" aria-label="' + (title || "diagramă") + '" xmlns="http://www.w3.org/2000/svg" font-family="system-ui,Arial" font-size="12">' + inner + "</svg>" + (title ? "<figcaption>" + title + "</figcaption>" : "") + "</figure>"; }
+  function t(x, y, s, o) { o = o || {}; return '<text x="' + x + '" y="' + y + '" text-anchor="' + (o.a || "middle") + '" fill="' + (o.f || "#14213d") + '" font-size="' + (o.s || 11) + '" font-weight="' + (o.w || 700) + '">' + s + "</text>"; }
+  function r(x, y, w, h, f, o) { o = o || {}; return '<rect x="' + x + '" y="' + y + '" width="' + w + '" height="' + h + '" rx="' + (o.rx == null ? 3 : o.rx) + '" fill="' + f + '" stroke="' + (o.st || "#334155") + '" stroke-width="1"/>'; }
+  function ln(x1, y1, x2, y2, c, w, d) { return '<line x1="' + x1 + '" y1="' + y1 + '" x2="' + x2 + '" y2="' + y2 + '" stroke="' + (c || "#334155") + '" stroke-width="' + (w || 1.5) + '"' + (d ? ' stroke-dasharray="' + d + '"' : "") + "/>"; }
+  /* buget de legătură „cascadă” (exemplul BS → portabil, UHF) */
+  SVG.budgetW = function () {
+    var y0 = 30, sc = 5, g = "", steps = [["TX", 41.5, "#2563eb"], ["fider −3", -3, "#ef4444"], ["conector −1", -1, "#ef4444"], ["antenă +2,5", 2.5, "#16a34a"]];
+    function Y(v) { return y0 + (45 - v) * sc; }
+    g += ln(40, Y(40), 470, Y(40), "#94a3b8", 1, "4 3") + t(468, Y(40) - 4, "ERP 40 dBm", { a: "end", s: 9.5, f: "#475569" });
+    var lvl = 0, x = 48;
+    steps.forEach(function (s, i) { var a = i ? lvl : 0, b = i ? lvl + s[1] : s[1]; var top = Y(Math.max(a, b)), h = Math.max(4, Math.abs(Y(a) - Y(b))); if (!i) { top = Y(b); h = Y(30) - Y(b); } g += r(x, top, 46, h, s[2]) + t(x + 23, Y(30) + 14, s[0], { s: 9 }); lvl = b; x += 60; });
+    g += t(48 + 23, Y(41.5) - 5, "41,5", { s: 9.5 });
+    g += r(290, 60, 180, 74, "#f8fafc") + t(380, 77, "Drum: −135 dB", { s: 10.5, f: "#b91c1c" }) + t(380, 94, "→ −95 dBm la antena RX", { s: 10 }) + t(380, 111, "portabil −3, conector −1, cablu −0,5", { s: 9, w: 400 }) + t(380, 127, "→ −99,5 dBm la intrarea RX", { s: 10, f: "#1d4ed8" });
+    return W("0 0 480 140", g, "Bugetul legăturii pas cu pas (dB se adună și se scad)");
+  };
+  /* intermodulație de ordinul 3 */
+  SVG.imd = function () {
+    var g = ln(20, 110, 460, 110, "#334155", 1.5), f = [[372, 18, "#cbd5e1", "372"], [376, 46, "#f97316", "376 = 2A−B"], [380, 92, "#2563eb", "A 380"], [384, 92, "#2563eb", "B 384"], [388, 46, "#f97316", "388 = 2B−A"], [392, 18, "#cbd5e1", "392"]];
+    f.forEach(function (p) { var x = 40 + (p[0] - 370) * 18.5; g += r(x - 6, 110 - p[1], 12, p[1], p[2], { rx: 1 }) + t(x, 124, p[3], { s: p[3].length > 4 ? 8.5 : 9.5 }); });
+    g += t(240, 14, "Ordinul 3 (portocaliu) pică lângă canalele folosite; ordinul 5 (gri) e mai slab", { s: 10 });
+    return W("0 0 480 132", g, "Produse de intermodulație: A = 380 MHz, B = 384 MHz");
+  };
+  /* arhitecturi de rețele radio mobile */
+  SVG.netTypes = function () {
+    function bs(x, y, c) { return '<path d="M' + x + " " + (y + 22) + " L" + (x - 7) + " " + (y + 34) + " M" + x + " " + (y + 22) + " L" + (x + 7) + " " + (y + 34) + '" stroke="#334155" stroke-width="1.5"/>' + ln(x, y, x, y + 34, "#334155", 2) + '<circle cx="' + x + '" cy="' + y + '" r="4" fill="' + (c || "#2563eb") + '"/>'; }
+    function ms(x, y) { return r(x - 5, y - 9, 10, 18, "#0f172a", { st: "#0f172a", rx: 2 }); }
+    var g = "";
+    g += t(60, 14, "Mod direct (DMO)", { s: 10 }) + ms(35, 60) + ms(85, 60) + ln(42, 60, 78, 60, "#16a34a", 2, "4 3") + t(60, 92, "fără infrastructură", { s: 9, w: 400 });
+    g += t(180, 14, "Single site", { s: 10 }) + bs(180, 30) + ms(150, 82) + ms(210, 82) + ln(176, 36, 154, 72, "#2563eb", 1, "3 3") + ln(184, 36, 206, 72, "#2563eb", 1, "3 3") + t(180, 104, "dispecer + 1 stație", { s: 9, w: 400 });
+    g += t(300, 14, "Simulcast", { s: 10 }) + bs(272, 30, "#f97316") + bs(328, 30, "#f97316") + ms(300, 82) + t(300, 104, "aceeași frecvență + voter", { s: 9, w: 400 });
+    g += t(420, 14, "Trunking / celular", { s: 10 });
+    [[395, 40], [445, 40], [420, 72]].forEach(function (c, i) { g += '<circle cx="' + c[0] + '" cy="' + c[1] + '" r="22" fill="' + ["#dbeafe", "#dcfce7", "#fef9c3"][i] + '" stroke="#64748b"/>' + t(c[0], c[1] + 4, "f" + (i + 1), { s: 10 }); });
+    g += t(420, 112, "canale alocate la cerere", { s: 9, w: 400 });
+    return W("0 0 480 118", g, "Patru feluri de a construi o rețea radio");
+  };
+  /* ionosfera ziua / noaptea */
+  SVG.iono = function () {
+    var g = r(0, 0, 238, 130, "#e0f2fe", { st: "none", rx: 6 }) + r(242, 0, 238, 130, "#1e293b", { st: "none", rx: 6 });
+    g += t(119, 16, "ZIUA", { s: 11 }) + t(361, 16, "NOAPTEA", { s: 11, f: "#f8fafc" });
+    g += r(8, 34, 222, 12, "#93c5fd", { st: "none" }) + t(119, 43, "strat F (reflectă)", { s: 9 });
+    g += r(8, 70, 222, 12, "#fca5a5", { st: "none" }) + t(119, 79, "strat D (absoarbe < ~5 MHz)", { s: 9 });
+    g += r(250, 34, 222, 12, "#334155", { st: "none" }) + t(361, 43, "strat F (reflectă)", { s: 9, f: "#f8fafc" });
+    g += t(420, 79, "stratul D dispare", { s: 9, f: "#cbd5e1" });
+    g += '<path d="M20 120 L66 84" stroke="#dc2626" stroke-width="2"/>' + t(112, 112, "80 m: absorbit", { s: 9, a: "start", f: "#b91c1c" });
+    g += '<path d="M262 120 L320 46 L378 120" fill="none" stroke="#facc15" stroke-width="2"/>' + t(424, 112, "80 m: sute de km", { s: 9, f: "#fde68a" });
+    return W("0 0 480 130", g, "De ce benzile joase de unde scurte „se deschid” noaptea");
+  };
+})();
+function CB(s) { return '<div class="fact"><b>📻 În Colonati:</b> ' + s + "</div>"; }
+function GB(s) { return '<div class="fact"><b>🗼 În Graham:</b> ' + s + "</div>"; }
+function ERR(s) { return '<div class="eli trapw"><b>⚠ Atenție la carte:</b> ' + s + "</div>"; }
+/* --- Colonati --- */
+L("ant", 2, "Colonati: semnale, modulație și codare", "〰️", /Colonati cap\. [23]\)/, [
+  K("Drumul unui mesaj prin radio", "Ca o scrisoare: o scrii (sursa), o pui în plic (codare + modulare), o trimite poșta (mediul, unde se mai și murdărește – zgomot), iar destinatarul o deschide (demodulare + decodare).", "Moduri: <b>simplex</b> (un sens), <b>semiduplex</b> (pe rând – PTT), <b>duplex</b> (simultan). Distorsiunile sunt previzibile, zgomotul e aleator. <b>Nyquist</b>: fₑ ≥ 2·f_max. <b>Shannon</b>: C = B·log₂(1+S/N). Banda unui amplificator se măsoară la <b>−3 dB</b>.", CB("cap. 2 – introducere în telecomunicații și semnale.")),
+  K("AM, SSB, FM și modulațiile digitale", "AM schimbă „volumul” undei, FM îi schimbă „ritmul”. Zgomotul strică mai ales volumul, de aceea FM sună mai curat.", "AM ocupă 2·f_mod; supramodulația (m > 1) dă distorsiuni și splatter. SSB/BLU (J3E) ocupă ~jumătate, fără purtătoare. FM (F3E) e robust, dar lat. Variantele digitale: ASK, FSK, PSK; <b>QAM/nPSK</b> = mulți biți/Hz, dar cer SNR mare. GSM folosește <b>GMSK</b>."),
+  K("Cum se apără datele de erori", "FEC e ca atunci când repeți un număr de telefon în două feluri ca să nu fie înțeles greșit; ARQ e când întrebi „poți să repeți?”.", "<b>FEC</b> = redundanță, receptorul corectează singur. <b>ARQ</b> = ACK/NAK și retransmisie. <b>Intercalarea</b> împrăștie rafalele de erori. Codare: de sursă (compresie), de canal (corecție), de linie (adaptare la mediu). Spațiu liber: <b>32,44 + 20·log f[MHz] + 20·log d[km]</b>; 2× distanța = +6 dB.", EX("Nyquist, Shannon, lățimea de bandă AM vs SSB, FEC vs ARQ.")),
+], { byE: true });
+L("ant", 2, "Colonati: CW, RTTY și modurile cu corecție (AMTOR, PACTOR)", "⌨️", /Colonati cap\. ([4-9]|1[0-3])\)/, [
+  K("Primele moduri digitale", "Prima emisiune radio (Marconi, 1896) era deja „digitală”: purtătoare pornită sau oprită – Morse.", "<b>CW</b> = A1A, cel mai îngust mod; viteza în WPM cu cuvântul PARIS. <b>RTTY</b>: cod Baudot/ITA2 pe <b>5 biți</b>, <b>45,45 baud</b> (22 ms/bit), shift <b>170 Hz</b>, MARK = frecvența mai mare, fără corecție. F1B = FSK direct; J2B = AFSK (2125/2295 Hz) prin SSB. Purtătoare continuă → reduci puterea 25–50%.", CB("cap. 7–8 – telegrafie și RTTY.")),
+  K("ARQ și FEC în unde scurte", "AMTOR Mod A e o convorbire telefonică (doar doi, cu „am înțeles”); Mod B e un anunț la megafon repetat de două ori pentru toți.", "<b>AMTOR</b> 100 baud: A = ARQ (2 stații), B = FEC (fiecare caracter ×2); SITOR-B = NAVTEX. <b>PACTOR</b> = ARQ + Huffman; PACTOR II = PSK + DSP (~8× mai rapid). <b>G-TOR</b> = Golay + intercalare. <b>CLOVER II</b> = adaptiv (Reed-Solomon). ASCII = 7 biți."),
+  K("PC-ul legat la stație", "Placa de sunet devine modem: „vorbește” în microfonul stației și „ascultă” difuzorul ei.", "PTT prin RTS/DTR cu tranzistor sau optocuplor; transformatoare audio 1:1 contra buclelor de masă. Nivel audio corect: ALC-ul nu trebuie să lucreze (altfel splatter). Azi: USB + CAT integrate; azi domină <b>FT8</b>; IARU R1: moduri înguste în segmente dedicate."),
+], { byE: true });
+L("ant", 2, "Colonati: packet, PSK31, MFSK și propagarea în unde scurte", "🛰️", /Colonati cap\. (1[4-9]|2[01])\)/, [
+  K("Packet radio și APRS", "Packet radio e un mic Internet prin stații FM: datele merg în pachete cu adresa (indicativul) pe ele.", "<b>AX.25</b> = nivel 2, din HDLC; CRC + retransmisie. 1200 bit/s = AFSK 1200/2200 Hz (Bell 202) prin microfon; 9600 = G3RUH. <b>TNC</b> = modem + protocol (KISS lasă protocolul în PC). <b>Digipeater</b> = repetor digital. <b>APRS</b> = 144,800 MHz. CSMA + problema stației ascunse."),
+  K("Moduri înguste și robuste", "Cu cât fiecare simbol durează mai mult, cu atât ecourile (reflexiile) îl strică mai puțin – ca vorbitul rar într-o sală cu ecou.", "<b>PSK31</b>: BPSK 31,25 baud (8000/256), ~31 Hz, Varicode, ~50 WPM; QPSK31 = cu FEC. <b>MFSK16</b>: 16 tonuri, ~316 Hz, FEC + intercalare. <b>MT63</b>: 64 tonuri în 1 kHz. <b>Hellschreiber</b>: citit cu ochiul. DTMF = două tonuri per tastă.", ERR("scrie „31,25 KHz” la PSK31 – corect este <b>31,25 baud (Hz)</b>.")),
+  K("Propagarea în unde scurte", "Ionosfera e o oglindă care se schimbă: ziua are un „burete” jos (stratul D) care înghite frecvențele mici; noaptea buretele dispare.", "Ziua: stratul D absoarbe sub ~5 MHz → doar local. Noaptea: 80/160 m dau sute–mii de km. 5–30 MHz: salturi pe stratul F, drum scurt/lung. Ciclul solar ~11 ani; furtuni geomagnetice. VHF: vizibilitate directă + excepții (E sporadic, ductare, meteor scatter). Sateliți: Doppler.", SVG.iono()),
+], { byE: true });
+L("ant", 3, "Colonati: spread spectrum, benzi ISM și Wi-Fi", "📶", /Colonati cap\. 2[23]\)/, [
+  K("Spread spectrum", "În loc să strigi pe o singură notă, șoptești pe toată gama: cine nu știe „cheia” aude doar un foșnet, iar zgomotul pe o notă nu te mai acoperă.", "<b>DSSS</b>: biți × chip-uri, apoi PSK (802.11b); SNR necesar ~12 dB; problema <b>near-far</b>. <b>FHSS</b>: salturi după o secvență, cu dwell time (Bluetooth: 79 canale); ~18 dB. Experimentul din 1952: 25 W spread spectrum la 5000 km, unde 50 kW clasic eșua."),
+  K("Benzile fără licență", "ISM e ca un teren de fotbal public: oricine poate juca, dar nimeni nu are teren rezervat.", "ISM: <b>433,05–434,79 MHz</b>, <b>2400–2483,5 MHz</b>, <b>5725–5875 MHz</b> (902–928 doar în Americi). WLAN 2,4 GHz în UE: <b>100 mW EIRP (20 dBm)</b>. Fără protecție la interferențe. Reglementator: <b>ANCOM</b>. AMPRNet = 44.0.0.0/8; EchoLink = VoIP între repetoare."),
+  K("Wi-Fi pe scurt", "Canalele Wi-Fi de 2,4 GHz sunt ca niște benzi de autostradă prea late pentru marcaje: se calcă una pe alta, așa că doar trei încap fără suprapunere.", "802.11b = 11 Mbit/s DSSS/CCK; 802.11a = 54 Mbit/s OFDM la 5 GHz; 802.11g = 54 Mbit/s OFDM la 2,4 GHz. Canal 22 MHz, pas 5 MHz → nesuprapuse <b>1, 6, 11</b>. Azi: Wi-Fi 4/5/6/6E (6 GHz)/7.", ERR("asociază 802.11g cu DSSS – în realitate <b>802.11g folosește OFDM</b> pentru 54 Mbit/s.")),
+], { byE: true });
+L("ant", 3, "Colonati: legătura radio de date, dBm și coduri de emisie", "📐", /Colonati (cap\. 24\)|anexe|– noțiuni)/, [
+  K("Proiectezi un link de 2,4 GHz", "Bugetul legăturii e un portofel: pornești cu puterea emițătorului, adaugi câștigurile antenelor, scazi pierderile (cabluri, drum) și vezi dacă îți ajung „banii” pentru receptor.", "P_rx = P_tx − cablu + G_tx − drum + G_rx − cablu. Exemplu: 17 − 3 + 18 − 115 + 2 − 3 = <b>−84 dBm</b> → nu ajunge pentru 11 Mbit/s (−82), dar merge la 5,5 Mbit/s (−87). Debit mic = sensibilitate mai bună. Coax la 2,4 GHz: 4–6 dB / 30 m → cablu scurt, conectori N, descărcător. AP omni sus; UTP ≤ 90 m.", ERR("dă drumul ca „105 + 21·log D”, iar benzile ca „2,4 MHz / 5,7 MHz”. Folosește spațiul liber (<b>~100 + 20·log d</b> la 2,4 GHz) și <b>GHz</b>.")),
+  K("Decibelii care contează", "dB-ul e o scară de „de câte ori”: +3 dB = dublu, +10 dB = de zece ori.", "0 dBm = 1 mW ≈ 224 mV pe 50 Ω; 30 dBm = 1 W; 40 dBm = 10 W; 1 µV ≈ −107 dBm. dBi = dBd + 2,15; EIRP = ERP + 2,15. λ[m] = 300/f[MHz] (145 MHz → λ ≈ 2,07 m, λ/4 ≈ 52 cm; practic ~49 cm, cu factorul de scurtare ~0,95). Fresnel la mijloc: 8,66·√(D/f); orizont ≈ 4,12·(√h₁+√h₂). VSWR 1,5 → 4%, 2 → 11% reflectat."),
+  K("Codurile de emisie ITU", "Trei semne care spun tot: cum e modulată unda, ce o modulează și ce transportă.", "Litera 1: A = AM, J = SSB fără purtătoare, F = FM, G = PM, C = bandă reziduală. Cifra: 1 = digital direct, 2 = digital pe subpurtătoare, 3 = analogic. Litera 3: A = telegrafie auditivă, B = automată, D = date, E = voce, F = TV. <b>A1A</b> CW · <b>A3E</b> AM · <b>J3E</b> SSB · <b>F3E</b> FM · F1B RTTY · C3F TV.", EX("0 dBm/30 dBm, 1 µV ≈ −107 dBm, J3E vs F3E, calculul unui buget simplu.")),
+], { byE: true });
+/* --- Graham --- */
+L("ant", 2, "Graham: rețele radio mobile, organisme și TETRA", "🚓", /Graham cap\. [1-3][) ]/, [
+  K("Cine împarte frecvențele", "Spectrul radio e ca spațiul aerian: are reguli mondiale, europene și naționale.", "<b>ITU</b> (Geneva; R, T, D), Europa = <b>Regiunea 1</b>; <b>WRC</b> schimbă Regulamentul Radiocomunicațiilor; MIFR = registrul mondial. <b>CEPT/ERO</b> armonizează în Europa; <b>ETSI</b> face standardele (GSM, TETRA). În România: <b>ANCOM</b>. ITU-R SG3 = propagare.", GB("cap. 2 – spectru și standarde.")),
+  K("Patru arhitecturi de rețea", "Poți vorbi direct cu colegul (DMO), printr-un dispecer (single site), prin multe stații care cântă aceeași notă (simulcast) sau printr-o „centrală” care îți dă un canal liber (trunking).", "<b>DMO</b>: rapid, bătaie mică. <b>Single site</b>: taxi, port. <b>Simulcast</b>: aceeași frecvență, voter pe uplink. <b>Trunking</b>: canale la cerere, apel de grup, urgență, blocarea terminalelor furate (TETRA, MPT 1327). <b>Celular</b>: reutilizare, sectoare, handover; CDMA cere control de putere.", SVG.netTypes()),
+  K("TETRA – rețeaua serviciilor de urgență", "TETRA e „telefonul-stație” al intervențiilor: apasă PTT și te aude tot grupul, cu criptare și prioritate la urgență.", "Canal <b>25 kHz</b>, <b>TDMA 4 sloturi</b>, <b>π/4-DQPSK</b>, ~36 kbit/s; <b>380–400 MHz</b> (duplex 10 MHz); <b>TMO</b> (prin rețea) / <b>DMO</b> (direct). DMR: 12,5 kHz, 2 sloturi. PMR446: 0,5 W ERP, fără licență. În România, <b>STS operează rețeaua națională TETRA</b> a structurilor de urgență și ordine publică. Tendință: hibrid TETRA + LTE/5G (MCPTT).", EX("parametrii TETRA, DMO vs TMO, trunking vs simulcast.")),
+], { byE: true });
+L("ant", 2, "Graham: propagarea VHF/UHF", "⛰️", /Graham cap\. 4\)/, [
+  K("Ce i se întâmplă undei pe drum", "Unda radio se comportă ca lumina unei lanterne în ceață: se împrăștie, se reflectă, ocolește puțin colțurile și e înghițită de ziduri și copaci.", "Spațiul liber e valabil doar pe LOS curat. Sol plan, două raze: <b>~40 dB/decadă</b>. Fade-uri rapide la <b>λ/2</b>. Refracție: <b>k = 4/3</b> (raza efectivă ~8500 km); ductare = semnale de foarte departe (interferențe); subrefracție = obturare. Difracție peste dealuri. Ploaia contează abia peste ~10 GHz. Polarizare <b>verticală</b> în mobil."),
+  K("Modele de predicție", "Modelele sunt rețete statistice: îți spun ce semnal să te aștepți „în medie” într-un anumit tip de teren.", "<b>Okumura–Hata</b> 150–1500 MHz; <b>COST 231–Hata</b> până la 2 GHz; <b>P.1546</b> 30–3000 MHz (și interferențe); <b>P.526</b> difracție; muchie de cuțit cu vârful pe linie = <b>~6 dB</b>; mai multe obstacole: <b>Deygout</b>. Fresnel: Rₙ ≈ 550·√(n·d₁·d₂/(D·f[MHz])). Clutter = clase de teren. Chiar calibrat, modelul greșește cu σ ≈ 7–8 dB.", GB("cap. 4 – mecanisme și modele de propagare.")),
+], { byE: true });
+L("ant", 3, "Graham: fading, zgomot și bugetul legăturii", "📉", /Graham cap\. 5[) ]/, [
+  K("Trei feluri de fading", "Mergi cu mașina: dealurile îți „umbresc” semnalul încet (fading lent), iar reflexiile din jur îl fac să tremure de la un pas la altul (fading rapid).", "<b>Lent</b> (umbrire) = <b>lognormal</b>, mediat pe ~40λ. <b>Rapid</b> fără LOS = <b>Rayleigh</b>; cu LOS = <b>Rice</b> (factor K). Marjă 90%: Rayleigh <b>8,2 dB</b> (99%: 18,4); lognormal 1,28·σ. Marjele micșorează raza (ex. 18 km → 9,5 km)."),
+  K("Zgomot și sensibilitate", "Receptorul aude mereu un „fâșâit” de fond; semnalul trebuie să fie suficient peste el ca să fie înțeles.", "kTB = <b>−174 dBm/Hz</b> → 25 kHz ≈ <b>−130 dBm</b>, 12,5 kHz ≈ −133 dBm. Sensibilitate = kTB + NF + SNR (25 kHz, NF 10, SNR 12 → −108 dBm), dată mereu cu un criteriu (12 dB SINAD, BER), statică sau dinamică."),
+  K("Bugetul complet", "Socoteala se face pe ambele drumuri; de obicei stația portabilă, cu putere mică, e veriga slabă.", "ERP = 41,5 − 3 − 1 + 2,5 = <b>40 dBm</b>. MAPL = ERP − nivelul minim necesar. Din MAPL scazi corpul (~6 dB), clădirea (~15–25 dB), marja de fading. Portabil la centură: −10…−30 dB; „rubber duck” UHF ~−8…−10 dB. E[dBµV/m] = P[dBm] + 20·log f + 77,2. TMA = amplificator lângă antenă (ajută uplink-ul).", SVG.budgetW()),
+], { byE: true });
+L("ant", 3, "Graham: acoperire, trafic și Erlang", "🗺️", /Graham cap\. ([6-9]|1[01])\)/, [
+  K("Cerințe de acoperire măsurabile", "„Să meargă peste tot” nu e o cerință; „95% din locații, în 50% din timp, pe drumurile principale, fără goluri mai lungi de 500 m” este.", "În clădiri: marjă de ~20 dB peste stradă. Rețele critice: încrederea unui singur apel. Alegerea site-urilor: grilă, selectivă, puncte înalte (rele pentru rețele limitate de trafic), site-uri existente. Reglaje: înălțime → putere → azimut → tilt, abia apoi site nou. Nominal: BS 30 m la țară / 5–15 m în oraș; mobil 1,5 m; frecvența cea mai mare din bandă."),
+  K("Traficul în Erlang", "Un Erlang e o linie ocupată tot timpul; zece oameni care vorbesc câte 6 minute pe oră fac împreună 1 Erlang.", "<b>Erlang B</b>: apelurile blocate se pierd → numărul de canale pentru un GoS (ex. 1,5 E la 5% → <b>4 canale</b>). <b>Erlang C</b>: apelurile așteaptă la coadă (dispecerat). GoS = probabilitatea de blocare. Factor limitativ: acoperire, trafic sau interferență. Documente: URS → FS → proiect → test → acceptanță.", EX("definiția Erlang, B vs C, cum alegi înălțimea și tilt-ul.")),
+], { byE: true });
+L("ant", 3, "Graham: backhaul radioreleu și interferențe", "📡", /Graham cap\. 1[23]\)/, [
+  K("Backhaul-ul", "Backhaul-ul e „autostrada” care leagă stațiile de bază de centru – pe fibră sau pe radioreleu.", "Topologii: stea (simplă), <b>inel</b> și mesh (redundanță). Disponibilitate tipică <b>99,99%</b>. LOS + ≥ 0,6 din prima zonă Fresnel liberă, verificat și cu k mic (~0,6–0,7). FSL = <b>92,45 + 20·log d[km] + 20·log f[GHz]</b> (12 km la 28 GHz ≈ 143 dB). Ploaia peste ~10 GHz → polarizare verticală. Diversitate de spațiu / frecvență."),
+  K("Zgomot și interferență", "Într-o cameră liniștită auzi o șoaptă (limitat de zgomot); la o petrecere te acoperă ceilalți vorbitori (limitat de interferență).", "Zgomotul industrial domină în VHF/UHF și desensibilizează. <b>C/I</b> = cu cât semnalul util trebuie să fie peste interferent. Downlink: interferent = altă BS pe aceeași frecvență. Canal adiacent PMR 12,5 kHz: ~6 / 25 / 40 dB la 1 / 2 / 3 canale. Interferenții se adună în putere. Remedii: putere, diagramă, înălțime, tilt, sector/nul, <b>altă frecvență</b>."),
+], { byE: true });
+L("ant", 3, "Graham: intermodulație, site-ul și drive-test-ul", "🧪", /Graham cap\. 1[45][) ]/, [
+  K("Intermodulația", "Două emițătoare „amestecate” într-un element neliniar nasc frecvențe noi, ca două note care, cântate prost, scot un al treilea sunet fals.", "Ordinul 3: <b>2A−B, 2B−A</b> – cele mai periculoase (380/384 → <b>376/388 MHz</b>); ordinul 5: 372/392. Cauze: cuplaj, receptor supraîncărcat, „rusty bolt”. Co-site: armonici (impare mai puternice), frecvența imagine și FI, separare minimă. Duplexor = TX + RX pe aceeași antenă; izolare mai bună cu separare verticală. Trăsnet: paratrăsnet, împământare, descărcătoare.", SVG.imd()),
+  K("Verificarea prin drive-test", "Nu crezi harta de acoperire până nu mergi pe teren să măsori.", "Drive-test din vehicul + măsurători pietonale/în interior. Mediana pe sectorul scurt: <b>~50 de eșantioane pe ~40λ → ±1 dB</b>. Eșantionezi pe <b>distanță</b>, nu pe timp. Rețele digitale: și calitate (BER). Simularea portabilului: corecții pentru corp, antenă, înălțime. Final: certificat de acceptanță.", EX("2A−B, cauzele intermodulației, regula de ~50 de eșantioane.")),
+], { byE: true });
